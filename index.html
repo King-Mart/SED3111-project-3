@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>You Are Ottawa — Budget Awareness MVP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-mark" aria-hidden="true">🟣</div>
+      <div>
+        <div class="title">You Are Ottawa</div>
+        <div class="subtitle muted">Budget Awareness • Prototype</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div id="layerToggle" class="layer-toggle" aria-label="Budget layer toggle">
+        <button id="toggleOperating" data-layer="operating" class="active">Operating</button>
+        <button id="toggleCapital" data-layer="capital">Capital</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="left">
+      <div class="panel advisor">
+        <div class="title">Advisor</div>
+  <div id="advisorText" class="muted">Welcome — you will help decide how Ottawa allocates the city budget. Click Start to begin.</div>
+        <div style="margin-top:auto;" id="sceneControls"></div>
+      </div>
+      
+      <div id="debriefPanel" class="panel" style="margin-top:12px; cursor:pointer;">
+        <div class="muted">Budget Debrief</div>
+        <div style="font-weight:700; font-size:18px; margin-top:6px">Total funds available: <span id="totalFunds">—</span></div>
+        <div id="debriefDesc" class="muted" style="margin-top:8px">Use the sliders to distribute the budget (percentages). You must total 100% to proceed.</div>
+      </div>
+    </div>
+
+    <div class="right">
+      <!-- Scenes -->
+      <div id="scene-intro" class="scene active panel">
+        <h2>Welcome to Ottawa</h2>
+        <p class="muted">You are a mini city leader. Make trade-offs, learn their stories, and see how your choices compare with the city's real spending.</p>
+        <div class="actions"><button id="startBtn">Start</button></div>
+      </div>
+
+      <div id="scene-debrief" class="scene panel">
+        <h2>Budget Debrief</h2>
+  <p class="muted">You have <span id="debriefTotalInline">—</span> to distribute across the city. Consider the trade-offs — more for one sector means less for others.</p>
+        <div class="actions">
+          <button id="debriefContinue">View revenue breakdown</button>
+          <button id="debriefSkip" class="secondary">Skip & Allocate</button>
+        </div>
+      </div>
+
+      <!-- Revenue breakdown scene (drop-in) -->
+      <section id="scene-revenue" class="scene panel" aria-labelledby="revTitle">
+        <h2 id="revTitle">Where Ottawa’s Money Comes From</h2>
+        <p class="muted">Tap a slice to learn what it means.</p>
+
+        <div class="rev-grid">
+          <div class="rev-chart-wrap">
+            <canvas id="revenueChart" aria-label="Ottawa revenue breakdown" role="img"></canvas>
+          </div>
+          <aside id="revDetails" class="rev-card" aria-live="polite">
+            <h3 id="revName">Property Taxes</h3>
+            <p id="revPct">$ and % will appear here</p>
+            <p id="revExplainer">Click a slice to see what this pays for, who pays it, and why it matters.</p>
+          </aside>
+        </div>
+
+        <div class="actions">
+          <button id="revenueContinue">Continue</button>
+        </div>
+      </section>
+
+      <div id="scene-blind" class="scene panel">
+        <h2>Blind Allocation</h2>
+        <p class="muted">Follow your instincts. Allocate 100% across the categories. Labels are minimal to capture intuition.</p>
+        <div style="display:flex; gap:12px; align-items:center; margin-bottom:10px">
+          <div class="muted">Mode:</div>
+          <div style="display:inline-flex; gap:8px;">
+            <button id="modePresets" class="small-mode">Presets</button>
+            <button id="modePie" class="small-mode active">Pie</button>
+            <button id="modeSliders" class="small-mode">Sliders</button>
+          </div>
+          <div style="margin-left:auto" class="muted">Layer: <strong id="blindLayerLabel">operating</strong></div>
+        </div>
+
+        <div id="blindModePresets" style="display:none">
+          <div class="muted">Presets</div>
+          <div id="presetButtons" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px"></div>
+        </div>
+
+        <div id="blindModePie" style="display:block">
+          <div class="chart-wrap panel" style="padding:8px; position:relative">
+            <canvas id="blindPie" height="300" aria-label="Blind allocation pie"></canvas>
+            <!-- Overlay captures pointer events and forwards to pie handlers (improves hit-testing) -->
+            <div id="blindPieOverlay" class="pie-overlay" role="region" aria-label="Pie controls" ></div>
+          </div>
+        </div>
+
+        <div id="blindModeSliders" style="display:none">
+          <div class="controls-grid" id="blindControls"></div>
+        </div>
+
+        <div class="totals" id="blindTotal">Total: 0 / 100</div>
+        <div class="actions">
+          <button id="blindSaveDraft">Save Draft</button>
+          <button id="blindRandom" class="secondary">Randomize</button>
+          <button id="blindSubmit" disabled>Save & Continue</button>
+        </div>
+      </div>
+
+      <div id="scene-adjust" class="scene panel">
+        <h2>Storytelling & Adjustment</h2>
+        <p class="muted">Now that you know more about each sector, update your allocation. Reference the city's real spending on the right.</p>
+        <div class="controls-grid" id="adjustControls"></div>
+        <div class="totals" id="adjustTotal">Total: 0 / 100</div>
+        <div class="actions"><button id="adjustRandom" class="secondary">Randomize</button><button id="adjustSubmit" disabled>Update Allocation</button></div>
+      </div>
+
+      <div id="scene-compare" class="scene panel">
+        <h2>Comparison & Reflection</h2>
+        <p class="muted">Let's see how your understanding evolved.</p>
+        <div style="display:flex; gap:12px; align-items:center; justify-content:space-between">
+          <div>
+            <label class="muted">View:</label>
+            <div id="compareViewToggle" style="display:inline-flex; gap:8px; margin-left:8px">
+              <button data-view="operating" class="cv-btn active">Operating</button>
+              <button data-view="capital" class="cv-btn">Capital</button>
+              <button data-view="combined" class="cv-btn">Combined</button>
+            </div>
+          </div>
+          <div class="muted">Layer: <strong id="compareLayerLabel">operating</strong></div>
+        </div>
+        <div class="chart-wrap panel"><canvas id="compareChart" height="180"></canvas></div>
+        <div id="summaryTable"></div>
+        <div class="metrics">
+          <div class="metric">Awareness: <span id="awarenessVal">—</span></div>
+          <div class="metric">Alignment: <span id="alignmentVal">—</span></div>
+        </div>
+        <div class="actions" style="margin-top:12px"><button id="restartBtn">Restart</button></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Built client-side. No data is sent externally. Optional: allocations are stored locally in your browser.</footer>
+
+  <!-- Libraries -->
+  <!-- Pin Chart.js to a stable 4.x UMD build to avoid runtime incompatibilities -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="app.js" defer></script>
+  <!-- Confirm overlay used when switching layers while editing -->
+  <div id="confirmOverlay" class="confirm-overlay" role="dialog" aria-modal="true">
+    <div class="confirm-box">
+      <div id="confirmText">You have unsaved changes for the current layer. Switch layers and lose changes?</div>
+      <div class="confirm-actions">
+        <button id="confirmCancel" class="secondary">Cancel</button>
+        <button id="confirmProceed">Switch</button>
+      </div>
+    </div>
+  </div>
+  <!-- Inline toast for small notifications -->
+  <div id="inlineToast" class="toast" role="status" aria-live="polite" style="display:none">Saved</div>
+</body>
+</html>
