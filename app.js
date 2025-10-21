@@ -47,7 +47,7 @@ player.adjustedAllocations = { operating: [], capital: [] };
 const BUDGET = 100;
 
 // --- Scene management
-const scenes = ['intro','debrief','revenue','blind','adjust','compare'];
+const scenes = ['intro','debrief','blind','revenue','adjust','compare'];
 let currentSceneIndex = 0;
 function showScene(name){
   scenes.forEach(s => {
@@ -86,8 +86,8 @@ function updateAdvisorForScene(name){
 
 // --- Wire up scene buttons
 document.getElementById('startBtn').addEventListener('click', () => showScene('debrief'));
-document.getElementById('debriefContinue').addEventListener('click', () => showScene('revenue'));
-document.getElementById('debriefSkip').addEventListener('click', () => showScene('blind'));
+document.getElementById('debriefContinue').addEventListener('click', () => showScene('blind'));
+document.getElementById('debriefSkip').addEventListener('click', () => showScene('revenue'));
 
 // Layer toggle handlers
 document.getElementById('toggleOperating').addEventListener('click', () => { setActiveLayer('operating'); });
@@ -411,7 +411,7 @@ window.addEventListener('touchmove', (e)=>{
 window.addEventListener('resize', ()=>{ try{ revenueChart.resize(); }catch(e){} });
 // Ensure revenueContinue always advances even if chart failed
 const revContinueBtn = document.getElementById('revenueContinue');
-if(revContinueBtn){ revContinueBtn.addEventListener('click', () => { showScene('blind'); }); }
+if(revContinueBtn){ revContinueBtn.addEventListener('click', () => { showScene('adjust'); }); }
 
 // --- Build blind controls (icons only labels)
 const blindControls = document.getElementById('blindControls');
@@ -759,7 +759,7 @@ if(blindSubmitButton){
       return;
     }
     // both layers done — continue to adjust
-    showScene('adjust');
+    showScene('revenue');
   });
 } else { console.warn('blindSubmit button not found'); }
 
